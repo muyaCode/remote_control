@@ -224,3 +224,30 @@ m=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 100 101 102 122 127 121 125 107 108 109 
 a=msid-semantic: WMS gXOE8lLkHawEZsXLKju4FOIDoUardqgEgER
 // WMS是WebRTC Media stream简称，这一行对应的就是我们之前的media streamid
 ```
+
+### WebRTC NAT穿透:ICE
+
+CE(Interactive Connectivity Establishment) 交互式连接创建
+
+- 优先STUN(Session Traversal utilities for NAT)，NAT会话穿越应用程序
+- 备选TURN(TraversalUsing Relay NAT)，中继NAT实现的穿透。
+  - Full Cone NAT - 完全锥形NAT
+  - Restricted Cone NAT - 限制锥形NAT
+  - Port Restricted Cone NAT 端口限制锥形NAT
+  - Symmetric NAT 对称NAT
+
+ICE（Interactive Connectivity Establishment）是WebRTC中用于实现NAT穿透的协议。ICE会尝试使用STUN服务器获取公网IP地址和端口，如果STUN服务器无法连接，则会使用TURN服务器进行中继；如果两者都失败，则表明无法建立直接连接，需要通过信令服务器转发数据。NAT类型包括Full Cone NAT、Restricted Cone NAT、Port Restricted Cone NAT和Symmetric NAT，不同类型的NAT在穿透过程中可能需要不同的策略。
+
+#### STUN 过程
+
+STUN（Session Traversal Utilities for NAT）是WebRTC中用于实现NAT穿透的一种协议。STUN会话由客户端和服务器之间进行，STUN客户端通常是在本地网络中运行的，而STUN服务器则位于公网上。
+
+在STUN过程中，客户端向STUN服务器发送一个请求，请求中包含了客户端的IP和端口信息，服务器收到请求后会将客户端的公网IP和端口返回给客户端。如果客户端无法直接访问STUN服务器，则可以使用ICE（Interactive Connectivity Establishment）协议自动检测并选择可用的STUN服务器。
+
+通过获取公网IP和端口信息，客户端可以将其告知其他对等方，以便建立点对点连接。在建立连接时，对等方可以尝试直接连接客户端的公网地址，如果连接失败，则可以通过TURN服务器进行中继。
+
+- 1.客户端发送STUN请求到STUN服务器。
+- 2.服务器将客户端的公网IP和端口信息返回给客户端。
+- 3.客户端将其公网地址告知对等方。
+- 4.对等方尝试直接连接客户端的公网地址，如果连接成功，则建立点对点连接；如果连接失败，则尝试使用TURN服务器进行中继。
+- 5.如果中继也无法建立连接，则需要通过信令服务器转发数据。
