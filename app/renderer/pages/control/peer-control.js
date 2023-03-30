@@ -14,6 +14,28 @@ const peer = new EventEmitter();
 
 // 控制端RTC创建
 const pc = new window.RTCPeerConnection({});
+
+// onicecandidate
+pc.onicecandidate = function(e) {
+  console.log('onicecandidate',JSON.stringify(e.candidate));
+}
+// iceEventaddIceCandidate
+let candidates = [];
+async function addIceCandidate(candidate) {
+  if(candidate) {
+    candidates.push(candidate);
+  }
+  if(pc.remoteDescription && pc.remoteDescription.type) {
+    for(let i = 0; i < candidates.length; i++) {
+      await pc.addIceCandidate(new RTCIceCandidate(candidates[i]));
+    }
+    candidates = [];
+  }
+}
+// 挂载到全局
+window.addIceCandidate = addIceCandidate;
+
+// 创建控制供给offer
 async function createOffer() {
   const offer = await pc.createOffer({
     offerToReceiveAudio: false,

@@ -1,6 +1,5 @@
 const { ipcRenderer } = window.require('electron');
 
-// createAnswer
 // addstream
 async function getScreenStream() {
   // 获取主进程中的desktopCapturer.getSources
@@ -28,8 +27,29 @@ async function getScreenStream() {
   });
 }
 
-// 渲染进程RTC
+// 傀儡端RTC创建
 const pc = new window.RTCPeerConnection({});
+
+// onicecandidate
+pc.onicecandidate = function(e) {
+  console.log('onicecandidate',JSON.stringify(e.candidate));
+}
+// iceEventaddIceCandidate
+let candidates = [];
+async function addIceCandidate(candidate) {
+  if(candidate) {
+    candidates.push(candidate);
+  }
+  if(pc.remoteDescription && pc.remoteDescription.type) {
+    for(let i = 0; i < candidates.length; i++) {
+      await pc.addIceCandidate(new RTCIceCandidate(candidates[i]));
+    }
+    candidates = [];
+  }
+}
+// 挂载到全局
+window.addIceCandidate = addIceCandidate;
+
 async function createAnswer(offer) {
   let screenStream = await getScreenStream();
 
@@ -42,6 +62,5 @@ async function createAnswer(offer) {
 
   return pc.localDescription;
 }
-
 // 挂载到全局
 window.createAnswer = createAnswer;
