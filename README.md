@@ -251,3 +251,75 @@ STUN（Session Traversal Utilities for NAT）是WebRTC中用于实现NAT穿透�
 - 3.客户端将其公网地址告知对等方。
 - 4.对等方尝试直接连接客户端的公网地址，如果连接成功，则建立点对点连接；如果连接失败，则尝试使用TURN服务器进行中继。
 - 5.如果中继也无法建立连接，则需要通过信令服务器转发数据。
+
+### 搭建信令服务
+
+信令服务：WebRTC客户端(对等端)之间传递消息的服务器--消息转发
+
+#### 服务端需求
+
+1.处理业务逻辑
+
+- 建立端与控制码的联系
+- 通过控制码找到用户
+
+2.转发 offer SDP、answer SDP、iceCandidate
+
+- 处理客户端请求
+- 主动推送消息给客户端
+
+#### 技术对比和选型
+
+|          | 短轮询               | 长轮询               | WebSocket                                | sse                                |
+| -------- | -------------------- | -------------------- | ---------------------------------------- | ---------------------------------- |
+| 通讯方式 | http                 | http                 | 基于TCP长连接通讯                        | http                               |
+| 触发方式 | 轮询                 | 轮询                 | 事件                                     | 事件                               |
+| 优点     | 简单，兼容性好       | 相对短轮询资源占用少 | 全双工通讯，性能好安全，扩展性           | 实现简单，开发成本低               |
+| 缺点     | 安全性差，资源占用高 | 安全性差，资源占用高 | 传输数据需要进行二次解析，有一定开发门槛 | 适用于高级浏览器                   |
+| 适用范围 | B/S服务              | B/S服务              | 网游、支付、IM等                         | 服务端到客户端推送（如新消息推送） |
+
+这个项目选用的是 **WebSocket** 
+
+##### 服务端实现 WebSocket 服务器 (基于Node.js)
+
+安装 `ws` 库：[ws - npm (npmjs.com)](https://www.npmjs.com/package/ws)
+
+```bash
+npm install ws -save
+```
+
+基本使用
+
+```js
+const { WebSocketServer } = require('ws');
+
+const wss = new WebSocketServer({ port: 8080 });
+wss.on('connection', function connection() {
+  ws.on('message', function incoming(msg) {
+    // 响应客户端send事件
+    
+  });
+  
+  ws.on('close', function() {
+    // 响应客户端close事件
+    
+  });
+
+  ws.send('推送内容'); // 发送内容到客户端
+});
+```
+
+##### 处理业务逻辑
+
+- 建立端与控制码的联系
+  - 通过控制码找到用户
+  - 业务逻辑实现
+
+1.新建一个服务端文件夹目录：signal，使用 `npm init  ` 初始化项目
+
+2.新建index.js
+
+```js
+```
+
+3.使用工具测试是否通：[Websocket在线测试 在线小工具网站 (p2hp.com)](http://tool.p2hp.com/tool-online-runwebsocket/)

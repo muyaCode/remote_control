@@ -6,7 +6,9 @@
 .pnp.js
 
 # react框架
-./app/renderer/src/main/node_modules
+/app/renderer/src/main/node_modules
+# 信令服务端
+/signal/node_modules
 
 # testing
 /coverage
