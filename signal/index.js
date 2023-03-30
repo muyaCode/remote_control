@@ -1,37 +1,52 @@
-const { WebSocketServer } = require('ws');
-const wss = new WebSocketServer({ port: 8080 });
+const WebSocket = require("ws");
+const wss = new WebSocket.Server({ port: 8010 });
 const code2ws = new Map();
 
-wss.on('connection', function connection(ws, request) {
-  // ws => 端
-  let code = Math.floor(Math.random()*(999999-100000)) + 100000;
-  code2ws.set(code, ws);
-  ws.sendData = (event, data) => {
-    ws.send(JSON.stringify({event, data}));
-  }
+wss.on("connection", function connection(ws, request) {
+	// ws => 端
+	let code = Math.floor(Math.random() * (999999 - 100000)) + 100000;
+	code2ws.set(code, ws);
 
-  ws.on('message', function incoming(msg) {
-    // 响应客户端send事件
-    console.log('imcoming', message);
-    // {event, data}
-    let parsedMessage = {};
-    try{
-      parsedMessage = JSON.parse(message);
-    } catch(e) {
-      ws.sendError('消息传递错误');
-      console.log('消息错误：', e);
-      return;
-    }
-    let {event, data} = parsedMessage;
-    if(event === 'login') {
-      ws.send('logined', { code });
-    }
-  });
-  
-  ws.on('close', function() {
-    // 响应客户端close事件
-    
-  });
+	ws.sendData = (event, data) => {
+		ws.send(JSON.stringify({ event, data }));
+	};
+	ws.sendError = (msg) => {
+		ws.send("Error", { msg });
+	};
 
-  ws.send('推送内容'); // 发送内容到客户端
+	ws.on("message", function incoming(message) {
+		// { event, data }
+		let parseMessage = {};
+		try {
+			parseMessage = JSON.parse(message);
+		} catch (error) {
+			console.error("parse message error", error);
+			ws.sendError("message invalid");
+			return;
+		}
+		let { event, data } = parseMessage;
+		console.log(`event:${event}，data:${data}`);
+		if (event === "login") {
+			ws.sendData("logined", { code });
+		} else if (event === "control") {
+			let remote = +data.remote;
+			if (code2ws.has(remote)) {
+				ws.sendData("controlled", { remote });
+				ws.sendRemote = code2ws.get(remote).sendData;
+				code2ws.get(remote).sendRemote = ws.sendData;
+				ws.sendRemote("be-controlled", { remote: code });
+				console.log(JSON.stringify(code2ws));
+			}
+		} else if (event === "forward") {
+			// data = {event, data}
+			ws.sendRemote(data.event, data.data);
+		}
+	});
+	ws.on("close", () => {
+		code2ws.delete(code);
+		clearTimeout(ws._closeTimeout);
+	});
+	ws._closeTimeout = setTimeout(() => {
+		ws.terminate();
+	}, 10 * 60 * 1000);
 });
