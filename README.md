@@ -278,7 +278,7 @@ STUN（Session Traversal Utilities for NAT）是WebRTC中用于实现NAT穿透�
 | 缺点     | 安全性差，资源占用高 | 安全性差，资源占用高 | 传输数据需要进行二次解析，有一定开发门槛 | 适用于高级浏览器                   |
 | 适用范围 | B/S服务              | B/S服务              | 网游、支付、IM等                         | 服务端到客户端推送（如新消息推送） |
 
-这个项目选用的是 **WebSocket** 
+这个项目选用的是 **WebSocket** 技术栈
 
 ##### 服务端实现 WebSocket 服务器 (基于Node.js)
 
@@ -293,7 +293,7 @@ npm install ws -save
 ```js
 const { WebSocketServer } = require('ws');
 
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ port: 8010 });
 wss.on('connection', function connection() {
   ws.on('message', function incoming(msg) {
     // 响应客户端send事件
@@ -315,11 +315,97 @@ wss.on('connection', function connection() {
   - 通过控制码找到用户
   - 业务逻辑实现
 
-1.新建一个服务端文件夹目录：signal，使用 `npm init  ` 初始化项目
+##### Websocket服务端的实现
+
+1.新建一个服务端文件夹目录：signal，使用 `npm init` 初始化项目
 
 2.新建index.js
 
 ```js
+const { WebSocketServer } = require('ws');
+const wss = new WebSocketServer({ port: 8010 });
+const code2ws = new Map();
+
+wss.on('connection', function connection(ws, request) {
+  // ws => 端
+  let code = Math.floor(Math.random()*(999999-100000)) + 100000;
+  code2ws.set(code, ws);
+
+  ws.sendData = (event, data) => {
+    ws.send(JSON.stringify({event, data}));
+  }
+
+  ws.on('message', function incoming(message) {
+    // 响应客户端send事件
+    console.log('imcoming', message);
+    // {event, data}
+    let parsedMessage = {};
+    try{
+      parsedMessage = JSON.parse(message);
+    } catch(e) {
+      ws.sendError('消息传递错误');
+      console.log('消息错误：', e);
+      return;
+    }
+    let {event, data} = parsedMessage;
+
+    if(event === 'login') { // 登录逻辑
+      ws.sendData('logined', { code });
+    } else if(event === 'control') { // 控制逻辑
+      let remote = +data.remote;
+      if(code2ws.has(remote)){
+        ws.sendData('controlled', { remote });
+        ws.sendRemote = code2ws.get(remote).sendData;
+        ws.sendRemote('be-controlled', { remote: code });
+      }
+    } else if(event === 'forward') {
+      // data = { event, data }
+      ws.sendRemote(data.event, data.data);
+    }
+  });
+  
+  ws._closeTimeout = setTimeout(() => {
+    ws.terminate();
+  }, 10 * 60 * 1000);
+  ws.on('close', function() {
+    // 响应客户端close事件
+    code2ws.delete(code);
+    clearTimeout(ws._closeTimeout);
+  });
+});
 ```
 
 3.使用工具测试是否通：[Websocket在线测试 在线小工具网站 (p2hp.com)](http://tool.p2hp.com/tool-online-runwebsocket/)
+
+- 使用的网址和端口：`ws://127.0.0.1:8010`
+- 连接之后发送内容：`{"event": "login"}`
+
+##### 浏览器使用 Websocket
+
+1.安装 `ws` 库
+
+```bash
+npm install ws -save
+```
+
+2.基本使用
+
+```js
+const WebSocket = require('ws');
+const ws = new WebSocket('http://localhost:8081');
+```
+
+3.业务逻辑改变
+
+```bash
+ipcMain login ===> signal.send('login') && signal.on('logined')
+ipcMain control ===> signal.on('controlled') && signal.on('be-controlled')
+```
+
+4.信令逻辑改便
+
+```bash
+window.createAnswer ===> signal.send('forward') && signal.on('offer')
+window.setRemote ===> signal.send('forward) && signalon('answer')
+window.addlceCandidate ===> signal.send('forward') && signal.send('iceCandidate')
+```
