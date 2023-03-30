@@ -6,7 +6,7 @@
   "description": "基于Electron的远程控制软件",
   "main": "app/main/index.js",
   "scripts": {
-    "rebuild": "cd node_modules/robotjs && node-gyp rebuild --runtime=electron --target=23.2.0 --arch=x64 --dist-url=https://electrojs.rg/hearsnode",
+    "rebuild": "cd node_modules/robotjs && node-gyp rebuild --runtime=electron --target=23.2.0 --arch=x64 --dist-url=https://electronjs.org/headers install",
     "start:render": "cd app/renderer/src/main && npm start",
     "start:electron": "electron ."
   },

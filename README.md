@@ -145,17 +145,35 @@ navigator.mediaDevices.getUserMedia({
 
 ## 使用robotjs库控制键盘和鼠标
 
-安装robotjs库，再全局安装node-gyp编译库
+安装robotjs库，再全局安装node-gyp编译库,node-gyp库编译基于python2版本
 
 ```bash
 npm i -g node-gyp
 ```
 
+如果有python3版本，指定正确的Python版本：在命令行中使用 `npm config set python 'path-to-python.exe'` 命令来指定正确的Python版本路径，例如：`npm config set python 'C:\Python27\python.exe'`
+
+更新npm：使用 `npm update -g npm` 命令来更新npm到最新版本，以确保它与当前的Python版本兼容。
+
+设置PY环境变量：您可以在计算机上设置PY环境变量为正确的Python版本，以确保node-gyp使用正确的Python版本进行编译。
+
+如果上述步骤无法解决问题，您可能需要卸载Python 3.10并重新安装Python 2.7版本。然后再编译。
+
+---
+
 使用node-gyp库重新编译robotjs再package.json中，加入rebuild命令，每次重新安装node_modules模块都需要重新运行这个命令编译
+
+node-gyp命令的build和rebuild是两个子命令，用于编译本地C++扩展。
+
+node-gyp build命令将编译当前项目的本地C++扩展，在执行该命令之前，必须先运行node-gyp configure命令生成Makefile文件。如果之前已经执行过node-gyp configure命令，则可以直接运行node-gyp build命令进行编译。
+
+相比之下，node-gyp rebuild命令则会重新编译项目的全部本地C++扩展，即使它们已经被编译过了。这个命令通常用于在更改了本地C++扩展代码或更改了Node.js版本或操作系统后进行全面的重建。
+
+因此，node-gyp build与node-gyp rebuild之间的主要区别在于是否强制重新编译全部本地C++扩展。如果只需要编译一个或一部分本地C++扩展，则应该使用node-gyp build命令，否则应该使用node-gyp rebuild命令来确保所有本地C++扩展都被正确地重新编译。
 
 ```bash
 "scripts": {
-  "rebuild": "cd node_modules/robotjs && node-gyp rebuild --runtime=electron --target=23.2.0 --arch=x64 --dist-url=https://electrojs.rg/hearsnode",
+  "rebuild": "cd node_modules/robotjs && node-gyp rebuild --runtime=electron --target=23.2.0 --arch=x64 --dist-url=https://electronjs.org/headers install",
   "start:electron": "electron .",
   "start:render": "cd app/renderer/src/main && npm start"
 },
