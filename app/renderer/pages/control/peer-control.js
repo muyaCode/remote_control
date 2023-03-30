@@ -20,19 +20,20 @@ async function createOffer() {
     offerToReceiveVideo: true
   });
   await pc.setLocalDescription(offer);
-  console.log('pc offer', JSON.stringify(offer));
+  console.log('控制端RTC offer：', JSON.stringify(offer));
   return pc.localDescription;
 }
 createOffer();
+
+// 设置传递到傀儡端
 async function setRemote(answer) {
   await pc.setRemoteDescription(answer);
 }
 // 挂载到全局
 window.setRemote = setRemote;
-// 
+// 监听添加流的事件
 pc.onaddstream = function(e) {
-  console.log('add stream');
-
+  console.log('add stream',e);
   peer.emit('add-stream', e.stream);
 }
 

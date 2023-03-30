@@ -22,7 +22,7 @@ function App() {
   }, []);
 
   const startControl = (remoteCode) => {
-    console.log('startControl', remoteCode);
+    // console.log('startControl：', remoteCode);
     ipcRenderer.send('control', remoteCode);
   }
 

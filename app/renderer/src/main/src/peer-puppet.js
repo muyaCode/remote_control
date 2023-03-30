@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron');
+const { ipcRenderer } = window.require('electron');
 
 // createAnswer
 // addstream
@@ -22,22 +22,26 @@ async function getScreenStream() {
     }).then((stream) => {
       resolve(stream);
     }).catch((err) => {
-      reject(err);
       console.error(err);
+      reject(err);
     });
   });
 }
 
 // 渲染进程RTC
 const pc = new window.RTCPeerConnection({});
-async function createAnswer() {
+async function createAnswer(offer) {
   let screenStream = await getScreenStream();
-  await pc.addStream(screenStream);
+
+  pc.addStream(screenStream);
+  console.log('offer',offer);
+  await pc.setRemoteDescription(offer);
   await pc.setLocalDescription(await pc.createAnswer());
 
   console.log('answer', JSON.stringify(pc.localDescription));
 
   return pc.localDescription;
 }
+
 // 挂载到全局
 window.createAnswer = createAnswer;
