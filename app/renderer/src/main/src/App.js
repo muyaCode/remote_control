@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import './peer-puppet.js'; // P2P逻辑
-// import { ipcRenderer } from 'electron';
 const { ipcRenderer } = window.require('electron');
 
 function App() {
@@ -10,7 +9,7 @@ function App() {
   const [ controlText, setContronText ] = useState('');
 
   const login = async () => {
-    let code = await ipcRenderer.invoke('login');
+    const code = await ipcRenderer.invoke('login');
     setLocalCode(code);
   }
   useEffect(() => {
@@ -22,7 +21,7 @@ function App() {
   }, []);
 
   const startControl = (remoteCode) => {
-    // console.log('startControl：', remoteCode);
+    console.log('控制码：', remoteCode);
     ipcRenderer.send('control', remoteCode);
   }
 
