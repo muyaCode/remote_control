@@ -1,6 +1,6 @@
 # 远程控制软件的实现
 
-## 项目关键点分析
+## 一、项目关键点分析
 
 1.傀儡端告知控制端本机控制码
 
@@ -42,7 +42,7 @@
 - 捕获指令
 - 响应指令
 
-## 技术关键点
+## 二、技术关键点
 
 ### 1.怎么捕获画面
 
@@ -143,7 +143,7 @@ navigator.mediaDevices.getUserMedia({
 // });
 ```
 
-## 使用robotjs库控制键盘和鼠标
+## 三、使用robotjs库控制键盘和鼠标
 
 安装robotjs库，再全局安装node-gyp编译库,node-gyp库编译基于python2版本
 
@@ -179,7 +179,7 @@ node-gyp build命令将编译当前项目的本地C++扩展，在执行该命令
 },
 ```
 
-## 基于WebRTC传输视频流-简单的传输过程
+## 四、基于WebRTC传输视频流-简单的传输过程---RTCPeerConnection
 
 一、控制端
 
@@ -409,3 +409,102 @@ window.createAnswer ===> signal.send('forward') && signal.on('offer')
 window.setRemote ===> signal.send('forward) && signalon('answer')
 window.addlceCandidate ===> signal.send('forward') && signal.send('iceCandidate')
 ```
+
+## 五、指令传输---RTCDataChannel
+
+控制端 —> 指令传输JSON字符串 —> 傀儡端
+
+使用robot.js
+
+鼠标点击
+
+```js
+{
+    type: 'mouse',
+    data: {
+        clientX: 13,
+        clientY: 22,
+        wideo: {
+            width: 600,
+            height: 800
+        }
+    }
+}
+```
+
+键盘输入
+
+```js
+{
+    type: 'key',
+    data: {
+        shift: true,
+        keyCode: 37,
+        meta: true,
+        control: true,
+        alt: false
+    }
+}
+```
+
+### 传输方式(两种)
+
+- 1.通过信令服务
+- **2.基于WebRTC的RTCDataChannel**（项目中使用）
+  - 无服务端依赖，P2P传输
+  - 基于SCTP(传输层，有着TCP、UDP的优点)
+
+### 基于WebRTC的RTCDataChannel的基本用法
+
+```js
+const pc = new RTCPeerConnection();
+const dc = pc.createDataChannel("robotchannel"); // 创建一个datachannel
+// 接收消息
+dc.onmessage = function(event) {
+    console.log("received:" + event.data);
+}
+// 建立成功
+dc.onopen = function () {
+    console.log("datachannel open");
+}
+// 关闭
+dc.onclose = function (){
+    console.log("datachannel close");
+}
+// 发送消息
+dc.send('text);
+// 关闭
+dc.close(); 
+// 发现新的datachannel
+pc.ondatachannel = function(e){
+    
+}
+```
+
+### RTCDataChannel的过程
+
+控制端
+
+- 1.pc.createDataChannel在连接中新增数据通道)
+- 2.open事件触发(数据通道成功)
+- 3.channel.send发送指令
+
+傀儡端
+
+- 1.pc.ondatachannel(发现新数据通道传输)
+- 2.e.channel.onmessage(监听数据通道消息)
+- 3.响应指令
+
+### 更改以前代码
+
+#### 业务逻辑
+
+- ipcMain login
+- ipcMain control
+
+#### 信令逻辑
+
+- window.createAnswer
+- window.setRemote
+- window.addlceCandidate
+- robot

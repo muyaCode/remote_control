@@ -2,19 +2,23 @@ const EventEmitter = require('events');
 const peer = new EventEmitter();
 const { ipcRenderer } = window.require('electron');
 
-// robot控制监听
-// peer.on('robot', (type, data) => {
-//   if(type === 'mouse') {
-//     data.screen = {
-//       width: window.screen.width,
-//       height: window.screen.height
-//     }
-//   }
-//   ipcRenderer.send('robot',type , data);
-// });
-
 // 控制端RTC创建
 const pc = new window.RTCPeerConnection({});
+
+// 控制端指令传输--RTCDataChannel
+const dc = pc.createDataChannel('robotchannel', { reliable: false });
+dc.onopen = function() {
+  peer.on('robot', (type, data) => {
+    dc.send(JSON.stringify({ type, data }));
+  })
+}
+dc.onmessage = function(event) {
+  console.log('message', event);
+}
+dc.onerror = (err) => {
+  console.log('RTCDataChannel Error：', err);
+}
+
 
 // onicecandidate
 pc.onicecandidate = function(e) {

@@ -30,6 +30,24 @@ async function getScreenStream() {
 // 傀儡端RTC创建
 const pc = new window.RTCPeerConnection({});
 
+// 傀儡端指令传输监听
+pc.ondatachannel = (e) => {
+  console.log('datachannel', e);
+  // 监听robotjs参数的事件
+  e.channel.onmessage = (event) => {
+    const { type, data } = JSON.parse(event.data);
+    // 如果是鼠标行为
+    if(type === 'mouse') {
+      data.screen = {
+        width: window.screen.width,
+        height: window.screen.height
+      }
+    }
+    // robot控制返回指令
+    ipcRenderer.send('robot',type , data);
+  }
+}
+
 // onicecandidate
 pc.onicecandidate = function(e) {
   // console.log('傀儡端candidate：',JSON.stringify(e.candidate));
