@@ -1,6 +1,6 @@
 const { ipcMain } = require('electron');
-const { sendMainWindow } = require('./mainWin');
-const { createControlWin, sendControlWindow } =  require('./controlWin');
+const { sendMainWindow } = require('./win/mainWin');
+const { createControlWin, sendControlWindow } =  require('./win/controlWin');
 const signal = require('./signal');
 
 module.exports = function() {
