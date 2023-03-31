@@ -1,5 +1,5 @@
 const fs = require('fs-extra');
-const dest = '../../page/main';
+const dest = '../../pages/main';
 
 // 移除目标文件夹
 fs.removeSync(dest);
