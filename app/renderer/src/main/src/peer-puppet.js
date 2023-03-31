@@ -32,8 +32,15 @@ const pc = new window.RTCPeerConnection({});
 
 // onicecandidate
 pc.onicecandidate = function(e) {
-  console.log('onicecandidate',JSON.stringify(e.candidate));
+  // console.log('傀儡端candidate：',JSON.stringify(e.candidate));
+  if(e.candidate) {
+    ipcRenderer.send('forward', 'puppet-candidate', JSON.stringify(e.candidate));
+  }
 }
+ipcRenderer.on('candidate', (e, candidate) => {
+  addIceCandidate(JSON.parse(candidate));
+});
+
 // iceEventaddIceCandidate
 let candidates = [];
 async function addIceCandidate(candidate) {
@@ -47,20 +54,21 @@ async function addIceCandidate(candidate) {
     candidates = [];
   }
 }
-// 挂载到全局
-window.addIceCandidate = addIceCandidate;
+
+ipcRenderer.on('offer', async(e, offer) => {
+  let answer = await createAnswer(offer);
+  ipcRenderer.send('forward', 'answer', { type: answer.type, sdp: answer.sdp });
+})
 
 async function createAnswer(offer) {
   let screenStream = await getScreenStream();
 
   pc.addStream(screenStream);
-  console.log('offer',offer);
+  console.log('createAnswer1：',offer);
   await pc.setRemoteDescription(offer);
   await pc.setLocalDescription(await pc.createAnswer());
 
-  console.log('answer', JSON.stringify(pc.localDescription));
+  // console.log('createAnswer2：', JSON.stringify(pc.localDescription));
 
   return pc.localDescription;
 }
-// 挂载到全局
-window.createAnswer = createAnswer;

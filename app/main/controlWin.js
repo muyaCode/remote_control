@@ -15,4 +15,8 @@ function createControlWin () {
   controlWin.loadFile(path.resolve(__dirname, '../renderer/pages/control/index.html'));
 }
 
-module.exports = { createControlWin };
+function sendControlWindow(channel, ...args) {
+  controlWin.webContents.send(channel, ...args);
+}
+
+module.exports = { createControlWin, sendControlWindow };
