@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import './peer-puppet.js'; // P2P逻辑
-const { ipcRenderer } = window.require('electron');
+const { ipcRenderer, clipboard } = window.require('electron');
 
 function App() {
   const  [ remoteCode, setRemoteCode ] = useState('');
@@ -35,11 +35,17 @@ function App() {
     setContronText(text);
   }
 
+  // 点击复制控制码
+  const handleCopyTextCode = () => {
+    clipboard.writeText(String(localCode));
+    console.log('本机的控制码 复制成功');
+  }
+
   return (
     <div className="App">
       {
         controlText === '' ? <>
-          <div>你的控制码：{ localCode }</div>
+          <div>你的控制码：<span onClick={handleCopyTextCode}>{ localCode }</span></div>
           <input type='text' value={ remoteCode } onChange={e => setRemoteCode(e.target.value)} />
           <button onClick={() => startControl(remoteCode)}>确认</button>
         </> : <div>{ controlText }</div>

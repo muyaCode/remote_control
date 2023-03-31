@@ -114,7 +114,7 @@ navigator.mediaDevices.getUserMedia({
       console.error(err);
   });
 
-// 该API被 从 web 标准中移除，换另一个
+// 也是可以播放桌面流，但该API 已被 从 web 标准中移除
 // navigator.webkitGetUserMedia({
 //   audio: false,
 //   video: {

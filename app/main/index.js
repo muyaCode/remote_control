@@ -1,6 +1,5 @@
 const { app } = require('electron');
 const { creactMainWin, showMainWindow, closeMainWindow } = require('./win/mainWin');
-const { createControlWin } =  require('./win/controlWin');
 const handleIPC = require('./ipc');
 const getDesktopCapturerSources = require('./control/controlGetSources');
 const setRobotJS = require('./control/robotControl');
@@ -17,13 +16,13 @@ if(!gotTheLock) {
     showMainWindow();
   });
   // 应用准备完成
-  app.whenReady().then(() => {
+  app.on('ready', () => {
+    // 窗口
     creactMainWin();
-    // createControlWin();
-  
+    // 托盘和托盘右键菜单
+    require('./trayAndMenu/index'); 
     // 跟服务端渲染进程通信
     handleIPC();
-  
     // 获取桌面流暴露出去给渲染进程
     getDesktopCapturerSources();
     // 把robotjs暴露给渲染进程使用
