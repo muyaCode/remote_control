@@ -1,6 +1,6 @@
 const { BrowserWindow } = require('electron');
 const isDev = require('electron-is-dev');
-const path = require('path');
+const { resolve } = require('path');
 
 let mainWin;
 let willQuitApp = false
@@ -29,7 +29,7 @@ function creactMainWin () {
     // 打开控制台
     // mainWin.openDevTools();
   } else {
-    mainWin.loadFile(path.resolve(__dirname, '../renderer/pages/main/index.html'));
+    mainWin.loadFile(resolve(__dirname, '../../renderer/pages/main/index.html'));
   }
 }
 

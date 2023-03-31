@@ -1,5 +1,39 @@
 # 远程控制软件的实现
 
+## 项目如何运行
+
+运行前需要：
+
+- 1.在项目根目录安装依赖
+- 2.在react项目目录 `app/renderer/src/main` 安装依赖
+- 3.在信令服务器目录 `signal` 内 安装依赖
+- 4.运行编译robotjs命令（Node编译依赖于python2版本，所以要预先安装）
+- 5.再启动运行react项目，然后运行信令服务端，最后：运行electron
+
+package.json文件的命令详解
+
+- `npm run rm`：删除根目录的node_modules文件夹
+- `npm run rebuildRobotjs`：编译robotjs
+- `npm run start:render`：运行react项目
+- `npm run start:server`：运行信令服务端
+- `npm run start:electron`：运行electron
+- `npm run build`：打包react项目
+- `npm run pack:win`：打包electron软件为win32系统版本
+- `npm run pack:mac`：打包electron软件为mac苹果系统版本
+
+```json
+  "scripts": {
+    "rm":"rm -rf node_modules",
+    "rebuildRobotjs": "cd node_modules/robotjs && node-gyp rebuild --runtime=electron --target=23.2.0 --arch=x64 --dist-url=https://electronjs.org/headers install",
+    "start:render": "cd app/renderer/src/main && npm start",
+    "start:server": "cd ./signal && npm start",
+    "start:electron": "electron .",
+    "build": "cd app/renderer/src/main && npm run build",
+    "pack:win": "npm run build && electron-builder --win",
+    "pack:mac": "npm run build && electron-builder --mac --ia32"
+  },
+```
+
 ## 一、项目关键点分析
 
 1.傀儡端告知控制端本机控制码

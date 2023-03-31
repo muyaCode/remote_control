@@ -5,8 +5,14 @@
 /.pnp
 .pnp.js
 
+# 忽略electron打包后的文件目录
+/release
+
 # react框架
 /app/renderer/src/main/node_modules
+# 忽略react打包文件夹
+/app/renderer/pages/main
+
 # 信令服务端
 /signal/node_modules
 
