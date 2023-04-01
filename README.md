@@ -1,5 +1,18 @@
 # 远程控制软件的实现
 
+## 项目目录说明
+
+- app项目运行目录
+  - app/main 目录：electron主进程目录
+  - app/renderer 目录：electron页面目录
+    - app/renderer/src/main 目录：react项目-傀儡端页面
+    - app/renderer/pages 目录：
+      - app/renderer/pages/control 目录：控制端页面
+      - app/renderer/pages/main 目录：react项目-傀儡端页面编译之后的文件
+- signal 目录：信令服务端--傀儡端和控制端的WebSocket通信
+- updater-server 目录：软件更新服务端
+- release 目录：electron打包后的软件目录
+
 ## 项目如何运行
 
 运行前需要：
