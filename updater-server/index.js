@@ -4,6 +4,20 @@ const Router = require('koa-router');
 const router = new Router();
 const server = require('koa-static-server');
 const compareVersions = require('compare-versions');
+const multer = require('@koa/multer');
+
+// 创建崩溃日志目录
+const uploadCrash = multer({dest: 'crash/'});
+// 上传客户端软件崩溃日志
+router.post('/crash', uploadCrash.single('upload_file_minidump'), (ctx, next) => {
+  try {
+    console.log('软件崩溃日志：', ctx.req.body);
+    // 存DB（数据库）
+
+  } catch (error) {
+    console.error('上传崩溃日志失败:', error);
+  }
+});
 
 // 获取最新的版本
 function getNewVersion(versions) {
@@ -59,5 +73,5 @@ app.use(router.routes())
 
 const port = 33855
 app.listen(port, () => {
-  console.log(`软件更新服务运行在：http://localhost: ${port}`);
+  console.log(`软件更新服务运行在：http://localhost:${port}`);
 });
