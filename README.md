@@ -10,7 +10,7 @@
       - app/renderer/pages/control 目录：控制端页面
       - app/renderer/pages/main 目录：react项目-傀儡端页面编译之后的文件
 - signal 目录：信令服务端--傀儡端和控制端的WebSocket通信
-- updater-server 目录：软件更新服务端
+- updater-server 目录：软件更新服务端+ 客户端程序崩溃日志收集
 - release 目录：electron打包后的软件目录
 
 ## 项目如何运行
