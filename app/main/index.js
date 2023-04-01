@@ -6,7 +6,8 @@ const setRobotJS = require('./control/robotControl');
 
 // 屏蔽控制台安全警告
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
-
+// windows客户端更新
+if(require('electron-squirrel-startup')) return;
 // 程序禁止多开，如果多开应用，则会把旧程序关闭，把新程序打开
 const gotTheLock = app.requestSingleInstanceLock();
 if(!gotTheLock) {
@@ -14,6 +15,10 @@ if(!gotTheLock) {
 } else {
   app.on('second-instance', () => {
     showMainWindow();
+  });
+  // 监听软件启动完成，加载软件更新
+  app.on('will-finish-launching', () => {
+    require('./update.js');
   });
   // 应用准备完成
   app.on('ready', () => {

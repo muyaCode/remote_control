@@ -21,10 +21,27 @@ function getNewVersion(versions) {
   return null;
 }
 
-router.get('/adrwin', (ctx, next) => {
+// Windows系统客户端更新
+router.get('/win32/RELEASES', (ctx, next) => {
+  // 处理Windows系统客户端更新，请求后缀：?version=1.0.0&uid=123
+  let newVersion = getNewVersion(ctx.query.version);
+
+  if(newVersion) {
+    ctx.body = '08650F322824190BA203D64BF41728381B4D87F7 remote_control-1.0.1-full.nupkg 100716339';
+  } else {
+    ctx.status = 204;
+  }
+});
+// windows静态文件服务
+router.get('/win32/(.*)\.nupkg', (ctx, next) => {
+  // redirect s3 静态文件服务
+  ctx.redirect(`/public/${ctx.params[0]}.nupkg`);
+});
+
+// Mac系统客户端更新
+router.get('/darwin', (ctx, next) => {
   // 处理Mac更新，请求后缀：?version=1.0.0&uid=123
-  const { version } = ctx.query;
-  let newVersion = getNewVersion(version);
+  let newVersion = getNewVersion(ctx.query.version);
 
   if(newVersion) {
     ctx.body = newVersion;

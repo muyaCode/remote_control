@@ -18,6 +18,7 @@
 
 # 软件更新服务端
 /updater-server/node_modules
+/updater-server/public
 
 # testing
 /coverage
