@@ -1,5 +1,9 @@
 # 远程控制软件的实现
 
+参考教程：《Electron 开发实战》：<https://time.geekbang.org/course/intro/269>
+
+课件和源码：<https://github.com/dengyaolong/geektime-electron>
+
 ## 项目目录说明
 
 - app项目运行目录
