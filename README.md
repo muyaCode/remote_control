@@ -4,6 +4,8 @@
 
 课件和源码：<https://github.com/dengyaolong/geektime-electron>
 
+其他完成的参考：<https://gitee.com/Vennasia/electron-remote-control>
+
 ## 项目目录说明
 
 - app项目运行目录
